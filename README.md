@@ -30,6 +30,18 @@ npm init -y
 npm install express body-parser mongodb dotenv nodemon
 ```
 
+### อธิบายแต่ละแพ็คเกจ
+
+- **express**: เว็บเฟรมเวิร์กสำหรับ Node.js ใช้สำหรับสร้าง API และจัดการเส้นทาง (routes) อย่างง่ายดาย
+- **body-parser**: ช่วยแปลงข้อมูลที่ส่งมากับคำขอ (request) เช่น JSON ให้อยู่ในรูปแบบที่ใช้งานได้ง่ายในเซิร์ฟเวอร์
+- **mongodb**: ไดรเวอร์อย่างเป็นทางการสำหรับการเชื่อมต่อและการทำงานกับ MongoDB จาก Node.js
+- **dotenv**: ใช้สำหรับจัดการตัวแปรสภาพแวดล้อม (environment variables) เช่น การตั้งค่าฐานข้อมูลหรือพอร์ต
+- **nodemon**: เครื่องมือสำหรับการพัฒนา ช่วยรีสตาร์ทเซิร์ฟเวอร์โดยอัตโนมัติเมื่อมีการเปลี่ยนแปลงโค้ด
+
+```bash
+npm install express body-parser mongodb dotenv nodemon
+```
+
 ---
 
 ## โครงสร้างโฟลเดอร์
