@@ -1,41 +1,40 @@
-# Creating a Basic RESTful API Using Node.js and MongoDB (Without Mongoose)
+# การสร้าง RESTful API พื้นฐานโดยใช้ Node.js และ MongoDB (โดยไม่ใช้ Mongoose)
 
-This guide demonstrates how to create a basic RESTful API using Node.js and MongoDB without relying on Mongoose or any ORM. Instead, it uses the native MongoDB driver for database interaction.
-
----
-
-## Prerequisites
-
-- **Node.js**: Version 14 or higher.
-- **MongoDB**: Ensure a MongoDB instance is running.
-- **Postman** (Optional): For API testing.
+คู่มือนี้แสดงวิธีการสร้าง RESTful API พื้นฐานโดยใช้ Node.js และ MongoDB โดยไม่พึ่งพา Mongoose หรือ ORM ใดๆ แต่จะใช้ตัวจัดการ MongoDB ดั้งเดิมสำหรับการโต้ตอบกับฐานข้อมูล
 
 ---
 
-## Project Setup
+## สิ่งที่ต้องมี
 
-### 1. Initialize the Project
+- **Node.js**: เวอร์ชัน 14 หรือสูงกว่า
+- **MongoDB**: ตรวจสอบให้แน่ใจว่ามีการรันอินสแตนซ์ MongoDB อยู่
+- **Postman** (อุปกรณ์เสริม): สำหรับการทดสอบ API
 
-Create a directory for your project and initialize it:
+---
 
+## การตั้งค่าโครงการ
+
+### 1. เริ่มต้นโครงการ
+
+สร้างไดเรกทอรีสำหรับโครงการของคุณและเริ่มต้น:
 ```bash
+mkdir restful-api-raw
+cd restful-api-raw
 npm init -y
 ```
 
-### 2. Install Dependencies
+### 2. ติดตั้ง Dependencies
 
-Install the required packages:
-
+ติดตั้งแพ็คเกจที่จำเป็น:
 ```bash
 npm install express body-parser mongodb dotenv nodemon
 ```
 
 ---
 
-## Folder Structure
+## โครงสร้างโฟลเดอร์
 
-Your project should have the following structure:
-
+โครงการของคุณควรมีโครงสร้างดังนี้:
 ```
 restful-api-raw/
 ├── routes/
@@ -47,12 +46,11 @@ restful-api-raw/
 
 ---
 
-## Create Files
+## การสร้างไฟล์
 
 ### 1. `.env`
 
-Create an `.env` file for environment variables:
-
+สร้างไฟล์ `.env` สำหรับตัวแปรสภาพแวดล้อม:
 ```env
 MONGO_URI=mongodb://localhost:27017
 DB_NAME=restful_api_raw
@@ -61,14 +59,13 @@ PORT=3000
 
 ### 2. `app.js`
 
-The main entry point for your API:
-
+จุดเริ่มต้นหลักสำหรับ API ของคุณ:
 ```javascript
-require("dotenv").config();
-const express = require("express");
-const bodyParser = require("body-parser");
-const { MongoClient } = require("mongodb");
-const itemsRoutes = require("./routes/items");
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const { MongoClient } = require('mongodb');
+const itemsRoutes = require('./routes/items');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,132 +73,109 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 
-// MongoDB connection
+// การเชื่อมต่อ MongoDB
 let db;
-const client = new MongoClient(process.env.MONGO_URI, {
-  useUnifiedTopology: true,
-});
-client
-  .connect()
-  .then(() => {
-    db = client.db(process.env.DB_NAME);
-    console.log(`Connected to MongoDB: ${process.env.DB_NAME}`);
-  })
-  .catch((err) => {
-    console.error("MongoDB connection failed:", err);
-    process.exit(1);
-  });
+const client = new MongoClient(process.env.MONGO_URI, { useUnifiedTopology: true });
+client.connect()
+    .then(() => {
+        db = client.db(process.env.DB_NAME);
+        console.log(`เชื่อมต่อกับ MongoDB: ${process.env.DB_NAME}`);
+    })
+    .catch((err) => {
+        console.error('การเชื่อมต่อ MongoDB ล้มเหลว:', err);
+        process.exit(1);
+    });
 
-// Pass the database to routes
+// ส่งต่อฐานข้อมูลไปยัง routes
 app.use((req, res, next) => {
-  req.db = db;
-  next();
+    req.db = db;
+    next();
 });
 
 // Routes
-app.use("/api/items", itemsRoutes);
+app.use('/api/items', itemsRoutes);
 
-// Start server
+// เริ่มต้นเซิร์ฟเวอร์
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`เซิร์ฟเวอร์ทำงานที่พอร์ต ${PORT}`);
 });
 ```
 
 ### 3. `routes/items.js`
 
-Create a route handler for CRUD operations:
-
+สร้างตัวจัดการเส้นทางสำหรับการดำเนินการ CRUD:
 ```javascript
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-// GET all items
-router.get("/", async (req, res) => {
-  try {
-    const items = await req.db.collection("items").find({}).toArray();
-    res.json(items);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch items", error: err.message });
-  }
+// GET สินค้าทั้งหมด
+router.get('/', async (req, res) => {
+    try {
+        const items = await req.db.collection('items').find({}).toArray();
+        res.json(items);
+    } catch (err) {
+        res.status(500).json({ message: 'ไม่สามารถดึงข้อมูลสินค้าได้', error: err.message });
+    }
 });
 
-// GET one item by ID
-router.get("/:id", async (req, res) => {
-  const { ObjectId } = require("mongodb");
-  try {
-    const item = await req.db
-      .collection("items")
-      .findOne({ _id: new ObjectId(req.params.id) });
-    if (!item) return res.status(404).json({ message: "Item not found" });
-    res.json(item);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch item", error: err.message });
-  }
+// GET สินค้าชิ้นเดียวตาม ID
+router.get('/:id', async (req, res) => {
+    const { ObjectId } = require('mongodb');
+    try {
+        const item = await req.db.collection('items').findOne({ _id: new ObjectId(req.params.id) });
+        if (!item) return res.status(404).json({ message: 'ไม่พบสินค้า' });
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ message: 'ไม่สามารถดึงข้อมูลสินค้าได้', error: err.message });
+    }
 });
 
-// POST create a new item
-router.post("/", async (req, res) => {
-  try {
-    const newItem = {
-      name: req.body.name,
-      quantity: req.body.quantity || 1,
-      description: req.body.description || "",
-    };
-    const result = await req.db.collection("items").insertOne(newItem);
-    res
-      .status(201)
-      .json({ message: "Item created", itemId: result.insertedId });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to create item", error: err.message });
-  }
+// POST สร้างสินค้าใหม่
+router.post('/', async (req, res) => {
+    try {
+        const newItem = {
+            name: req.body.name,
+            quantity: req.body.quantity || 1,
+            description: req.body.description || '',
+        };
+        const result = await req.db.collection('items').insertOne(newItem);
+        res.status(201).json({ message: 'สร้างสินค้าเรียบร้อย', itemId: result.insertedId });
+    } catch (err) {
+        res.status(500).json({ message: 'ไม่สามารถสร้างสินค้าได้', error: err.message });
+    }
 });
 
-// PATCH update an item
-router.patch("/:id", async (req, res) => {
-  const { ObjectId } = require("mongodb");
-  try {
-    const updatedFields = {};
-    if (req.body.name !== undefined) updatedFields.name = req.body.name;
-    if (req.body.quantity !== undefined)
-      updatedFields.quantity = req.body.quantity;
-    if (req.body.description !== undefined)
-      updatedFields.description = req.body.description;
+// PATCH อัปเดตสินค้า
+router.patch('/:id', async (req, res) => {
+    const { ObjectId } = require('mongodb');
+    try {
+        const updatedFields = {};
+        if (req.body.name !== undefined) updatedFields.name = req.body.name;
+        if (req.body.quantity !== undefined) updatedFields.quantity = req.body.quantity;
+        if (req.body.description !== undefined) updatedFields.description = req.body.description;
 
-    const result = await req.db
-      .collection("items")
-      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: updatedFields });
+        const result = await req.db.collection('items').updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: updatedFields }
+        );
 
-    if (result.matchedCount === 0)
-      return res.status(404).json({ message: "Item not found" });
-    res.json({ message: "Item updated" });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to update item", error: err.message });
-  }
+        if (result.matchedCount === 0) return res.status(404).json({ message: 'ไม่พบสินค้า' });
+        res.json({ message: 'อัปเดตสินค้าเรียบร้อย' });
+    } catch (err) {
+        res.status(500).json({ message: 'ไม่สามารถอัปเดตสินค้าได้', error: err.message });
+    }
 });
 
-// DELETE an item
-router.delete("/:id", async (req, res) => {
-  const { ObjectId } = require("mongodb");
-  try {
-    const result = await req.db
-      .collection("items")
-      .deleteOne({ _id: new ObjectId(req.params.id) });
-    if (result.deletedCount === 0)
-      return res.status(404).json({ message: "Item not found" });
-    res.json({ message: "Item deleted" });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to delete item", error: err.message });
-  }
+// DELETE สินค้า
+router.delete('/:id', async (req, res) => {
+    const { ObjectId } = require('mongodb');
+    try {
+        const result = await req.db.collection('items').deleteOne({ _id: new ObjectId(req.params.id) });
+        if (result.deletedCount === 0) return res.status(404).json({ message: 'ไม่พบสินค้า' });
+        res.json({ message: 'ลบสินค้าเรียบร้อย' });
+    } catch (err) {
+        res.status(500).json({ message: 'ไม่สามารถลบสินค้าได้', error: err.message });
+    }
 });
 
 module.exports = router;
@@ -209,40 +183,38 @@ module.exports = router;
 
 ---
 
-## Run the Project
+## การรันโครงการ
 
-1. **Start the Server:**
-
+1. **เริ่มต้นเซิร์ฟเวอร์:**
    ```bash
    npm start
    ```
 
-2. **Test the API Endpoints:**
-   Use a tool like Postman or `curl` to test the following endpoints:
+2. **ทดสอบ Endpoints ของ API:**
+   ใช้เครื่องมืออย่าง Postman หรือ `curl` เพื่อตรวจสอบ endpoints ต่อไปนี้:
 
-   - `GET /api/items` - Retrieve all items.
-   - `GET /api/items/:id` - Retrieve a single item by ID.
-   - `POST /api/items` - Create a new item.
-   - `PATCH /api/items/:id` - Update an item.
-   - `DELETE /api/items/:id` - Delete an item.
-
----
-
-## Technologies Used
-
-- **Node.js**: Backend framework.
-- **Express.js**: Web framework for Node.js.
-- **MongoDB**: NoSQL database.
-- **Dotenv**: Environment variable management.
+   - `GET /api/items` - ดึงสินค้าทั้งหมด
+   - `GET /api/items/:id` - ดึงสินค้าเฉพาะ ID
+   - `POST /api/items` - สร้างสินค้าใหม่
+   - `PATCH /api/items/:id` - อัปเดตสินค้า
+   - `DELETE /api/items/:id` - ลบสินค้า
 
 ---
 
-## License
+## เทคโนโลยีที่ใช้
 
-This project is open-source and available under the [MIT License](LICENSE).
+- **Node.js**: เฟรมเวิร์ก backend
+- **Express.js**: เว็บเฟรมเวิร์กสำหรับ Node.js
+- **MongoDB**: ฐานข้อมูล NoSQL
+- **Dotenv**: การจัดการตัวแปรสภาพแวดล้อม
 
 ---
 
-## Acknowledgments
+## ใบอนุญาต
+โครงการนี้เป็นโอเพนซอร์สและสามารถใช้งานได้ภายใต้ [MIT License](LICENSE)
 
-Thanks to the Node.js and MongoDB communities for providing excellent tools and resources.
+---
+
+## การยกย่อง
+ขอขอบคุณชุมชน Node.js และ MongoDB สำหรับเครื่องมือและทรัพยากรที่ยอดเยี่ยม
+
