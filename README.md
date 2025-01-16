@@ -38,10 +38,6 @@ npm install express body-parser mongodb dotenv nodemon
 - **dotenv**: ใช้สำหรับจัดการตัวแปรสภาพแวดล้อม (environment variables) เช่น การตั้งค่าฐานข้อมูลหรือพอร์ต
 - **nodemon**: เครื่องมือสำหรับการพัฒนา ช่วยรีสตาร์ทเซิร์ฟเวอร์โดยอัตโนมัติเมื่อมีการเปลี่ยนแปลงโค้ด
 
-```bash
-npm install express body-parser mongodb dotenv nodemon
-```
-
 ---
 
 ## โครงสร้างโฟลเดอร์
